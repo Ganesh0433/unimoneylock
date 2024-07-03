@@ -36,7 +36,21 @@ const Modal = ({ transaction, onClose }) => {
 
   const updatedAmount = data? Number(data.CurrentBalance) + Number(transaction.Amount) : amount;
   console.log("updated amount",updatedAmount)
-
+  function formatDate(date) {
+    const options = { hour: '2-digit', minute: '2-digit', hour12: true };
+    const timeString = date.toLocaleTimeString('en-US', options);
+  
+    const day = date.getDate();
+    const month = date.toLocaleString('default', { month: 'short' });
+    const year = date.getFullYear();
+  
+    return `Last updated at ${timeString.toLowerCase()} on ${day} ${month} ${year}`;
+  }
+  
+  const date = new Date();
+  const formattedDate = formatDate(date);
+  
+  console.log(formattedDate);
 
   const option = {
     method: 'POST',
@@ -44,7 +58,8 @@ const Modal = ({ transaction, onClose }) => {
         'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-        CurrentBalance: updatedAmount
+        CurrentBalance: updatedAmount,
+        formattedDate:formattedDate
     })
 };
 
@@ -194,7 +209,7 @@ function DebitTransaction() {
                         {transaction.DateOfDebit} {transaction.TimeOfDebit} &nbsp; To &nbsp; {transaction.DateToCredit} {transaction.TimeToCredit}
                       </div>
                     </td>
-                    <td className='px-6 py-4 text-sm font-medium text-blue-500 whitespace-nowrap'>{transaction.Amount}</td>
+                    <td className='px-6 py-4 text-sm font-semibold text-black whitespace-nowrap'>₹{transaction.Amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</td>
                   </tr>
                 ))
               ) : (
