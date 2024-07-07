@@ -6,77 +6,77 @@ const Modal = ({ transaction, onClose }) => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-    const fetchdata = async () => {
-      try {
-        const res = await fetch(`https://moneylock-dde0a-default-rtdb.firebaseio.com/UserData/currentbalance/${transaction.userid}.json`);
-        if (res.ok) {
-          var wdata = await res.json();
-          setdata(Object.values(wdata).pop());
+  const fetchdata = async () => {
+    try {
+      const res = await fetch(`https://moneylock-dde0a-default-rtdb.firebaseio.com/UserData/currentbalance/${transaction.userid}.json`);
+      if (res.ok) {
+        var wdata = await res.json();
+        setdata(Object.values(wdata).pop());
 
-          console.log("Fetched user info:", wdata);
-         
-        } else {
-          throw new Error('Failed to fetch data');
-        }
-      } catch (error) {
-        console.error("Error fetching data:", error);
-        setError(error.message);
-      } finally {
-        setLoading(false);
+        console.log("Fetched user info:", wdata);
+
+      } else {
+        throw new Error('Failed to fetch data');
       }
-    };
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      setError(error.message);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    useEffect(() => {
+  useEffect(() => {
     if (transaction.userid) {
       fetchdata();
     }
   }, [transaction.userid]);
 
-  console.log("store is ",data)
+  console.log("store is ", data)
 
-  const updatedAmount = data? Number(data.CurrentBalance) + Number(transaction.Amount) : amount;
-  console.log("updated amount",updatedAmount)
+  const updatedAmount = data ? Number(data.CurrentBalance) + Number(transaction.Amount) : amount;
+  console.log("updated amount", updatedAmount)
   function formatDate(date) {
     const options = { hour: '2-digit', minute: '2-digit', hour12: true };
     const timeString = date.toLocaleTimeString('en-US', options);
-  
+
     const day = date.getDate();
     const month = date.toLocaleString('default', { month: 'short' });
     const year = date.getFullYear();
-  
+
     return `Last updated at ${timeString.toLowerCase()} on ${day} ${month} ${year}`;
   }
-  
+
   const date = new Date();
   const formattedDate = formatDate(date);
-  
+
   console.log(formattedDate);
 
   const option = {
     method: 'POST',
     headers: {
-        'Content-Type': 'application/json'
+      'Content-Type': 'application/json'
     },
     body: JSON.stringify({
-        CurrentBalance: updatedAmount,
-        formattedDate:formattedDate
+      CurrentBalance: updatedAmount,
+      formattedDate: formattedDate
     })
-};
+  };
 
 
-const modifyData = async () => {
+  const modifyData = async () => {
     try {
-        const res = await fetch(`https://moneylock-dde0a-default-rtdb.firebaseio.com/UserData/currentbalance/${transaction.userid}.json`, option);
-        if (res.ok) {
-            const data = await res.json();
-            console.log("Data modified successfully:", data);
-        } else {
-            console.error("Failed to modify data");
-        }
+      const res = await fetch(`https://moneylock-dde0a-default-rtdb.firebaseio.com/UserData/currentbalance/${transaction.userid}.json`, option);
+      if (res.ok) {
+        const data = await res.json();
+        console.log("Data modified successfully:", data);
+      } else {
+        console.error("Failed to modify data");
+      }
     } catch (error) {
-        console.error("Error modifying data:", error);
+      console.error("Error modifying data:", error);
     }
-};
+  };
 
 
   return (
@@ -89,15 +89,15 @@ const modifyData = async () => {
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
         />
-      <button 
-    onClick={() => {
-        modifyData();
-        onClose();
-    }}
-    className="px-4 py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-700"
->
-    Lock Money
-</button>
+        <button
+          onClick={() => {
+            modifyData();
+            onClose();
+          }}
+          className="px-4 py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-700"
+        >
+          Lock Money
+        </button>
       </div>
     </div>
   );
@@ -147,7 +147,7 @@ function DebitTransaction() {
       if (res.ok) {
         const data = await res.json();
         const matches = Object.values(data).filter(entry => entry.DateOfDebit === searchTerm);
-        setStore(matches);
+        setStore(matches.reverse());
       } else {
         throw new Error('Failed to fetch data.');
       }
@@ -190,36 +190,36 @@ function DebitTransaction() {
         </div>
       </div>
       <div className={`overflow-x-auto ${selectedTransaction ? 'blur-sm' : ''}`}>
-    
-          <table className="min-w-full divide-y divide-gray-200">
-            <thead className="bg-gray-100">
-              <tr>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Transaction ID</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Date & Time</th>
-                <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Amount</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {store.length > 0 ? (
-                store.map((transaction, index) => (
-                  <tr key={index} className="bg-white cursor-pointer" onClick={() => handleTransactionClick(transaction)}>
-                    <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">{transaction.txnid}</td>
-                    <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
-                      <div>
-                        {transaction.DateOfDebit} {transaction.TimeOfDebit} &nbsp; To &nbsp; {transaction.DateToCredit} {transaction.TimeToCredit}
-                      </div>
-                    </td>
-                    <td className='px-6 py-4 text-sm font-semibold text-black whitespace-nowrap'>₹{transaction.Amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</td>
-                  </tr>
-                ))
-              ) : (
-                <tr>
-                  <td colSpan="3" className="px-6 py-4 text-sm text-center text-gray-500">No transactions found</td>
+
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Transaction ID</th>
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Date & Time</th>
+              <th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">Amount</th>
+            </tr>
+          </thead>
+          <tbody className="divide-y divide-gray-200">
+            {store.length > 0 ? (
+              store.map((transaction, index) => (
+                <tr key={index} className="bg-white cursor-pointer" onClick={() => handleTransactionClick(transaction)}>
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">{transaction.txnid}</td>
+                  <td className="px-6 py-4 text-sm text-gray-500 whitespace-nowrap">
+                    <div>
+                      {transaction.DateOfDebit} {transaction.TimeOfDebit} &nbsp; To &nbsp; {transaction.DateToCredit} {transaction.TimeToCredit}
+                    </div>
+                  </td>
+                  <td className='px-6 py-4 text-sm font-semibold text-black whitespace-nowrap'>₹{transaction.Amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</td>
                 </tr>
-              )}
-            </tbody>
-          </table>
-        
+              ))
+            ) : (
+              <tr>
+                <td colSpan="3" className="px-6 py-4 text-sm text-center text-gray-500">No transactions found</td>
+              </tr>
+            )}
+          </tbody>
+        </table>
+
       </div>
       {selectedTransaction && (
         <Modal transaction={selectedTransaction} onClose={handleCloseModal} />

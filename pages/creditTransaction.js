@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 const Modal = ({ transaction, onClose }) => {
   const [amount, setAmount] = useState(transaction.Amount);
+  const [message, setmessage] = useState(transaction.Message);
+
   const [data, setdata] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -104,6 +106,8 @@ const modifyData = async () => {
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
       <div className="flex flex-col p-6 bg-white rounded-lg shadow-lg">
+      <p className='text-center'>{message}</p>
+
         <input
           type="text"
           className="p-2 border rounded-l-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -169,7 +173,7 @@ function CreditTransaction() {
       if (res.ok) {
         const data = await res.json();
         const matches = Object.values(data).filter(entry => entry.DateToCredit === searchTerm);
-        setStore(matches);
+        setStore(matches.reverse());
       } else {
         throw new Error('Failed to fetch data.');
       }
