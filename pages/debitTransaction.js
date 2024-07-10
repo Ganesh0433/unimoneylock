@@ -77,6 +77,52 @@ const Modal = ({ transaction, onClose }) => {
       console.error("Error modifying data:", error);
     }
   };
+  const statusoption = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      Status:'Success'
+    })
+  };
+
+
+  const updatestatus = async () => {
+    try {
+      const statusres = await fetch(`https://moneylock-dde0a-default-rtdb.firebaseio.com/UserData/userinfo/${transaction.userid}/TransactionStatus/${transaction.txnid}.json`, statusoption);
+      if (statusres.ok) {
+        
+      } else {
+        console.error("Failed to modify data");
+      }
+    } catch (error) {
+      console.error("Error modifying data:", error);
+    }
+  };
+  const failedstatusoption = {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      Status:'Failed'
+    })
+  };
+
+
+  const failedupdatestatus = async () => {
+    try {
+      const statusres = await fetch(`https://moneylock-dde0a-default-rtdb.firebaseio.com/UserData/userinfo/${transaction.userid}/TransactionStatus/${transaction.txnid}.json`, failedstatusoption);
+      if (statusres.ok) {
+        
+      } else {
+        console.error("Failed to modify data");
+      }
+    } catch (error) {
+      console.error("Error modifying data:", error);
+    }
+  };
 
 
   return (
@@ -93,10 +139,20 @@ const Modal = ({ transaction, onClose }) => {
           onClick={() => {
             modifyData();
             onClose();
+            updatestatus();
           }}
           className="px-4 py-2 mt-4 text-white bg-blue-500 rounded-lg hover:bg-blue-700"
         >
           Lock Money
+        </button>
+        <button
+          onClick={() => {
+            failedupdatestatus();
+          
+          }}
+          className="px-4 py-2 mt-4 text-white bg-red-500 rounded-lg hover:bg-red-700"
+        >
+          Failed
         </button>
       </div>
     </div>
@@ -139,7 +195,7 @@ function DebitTransaction() {
   }, [me]);
 
   const handleSearch = async () => {
-    setStore([]);
+    setStore([]);  
     setLoading(true);
 
     try {
